@@ -5,7 +5,6 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,8 +17,6 @@ import {
   SelectTrigger,
   SelectContent,
   SelectValue,
-  SelectLabel,
-  SelectGroup,
   SelectItem,
 } from "@/components/ui/select";
 import { subjects } from "@/constants";
@@ -60,10 +57,10 @@ const CompanionForm = () => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Companion name</FormLabel>
+              <FormLabel>AI Tutor name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter the companion name"
+                  placeholder="Enter the AI tutor name"
                   {...field}
                   className="input"
                 />
@@ -113,10 +110,10 @@ const CompanionForm = () => {
           name="topic"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>What should he companion help with?</FormLabel>
+              <FormLabel>What should the AI tutor help with?</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Ex. Derivatives & Integrals"
+                  placeholder="Ex. Calculus Fundamentals"
                   {...field}
                   className="input"
                 />
@@ -186,7 +183,7 @@ const CompanionForm = () => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Estimated session duration</FormLabel>
+              <FormLabel>Estimated learning session time</FormLabel>
               <FormControl>
                 <Input
                   placeholder="15"
@@ -201,7 +198,7 @@ const CompanionForm = () => {
           )}
         />
         <Button type="submit" className="w-full cursor-pointer">
-          Build your companion
+          Create your AI tutor
         </Button>
       </form>
     </Form>
