@@ -20,8 +20,9 @@ export const createCompanion = async (formData: CreateCompanion) => {
 
 export const getAllCompanions = async ({ limit = 10, page = 1, subject, topic }: GetAllCompanions) => {
     const supabase = createSupabaseClient();
+    const { userId } = await auth();
 
-    let query = supabase.from('tutors').select();
+    let query = supabase.from('tutors').select('*');
 
     if(subject && topic) {
         query = query.ilike('subject', `%${subject}%`)
@@ -38,7 +39,27 @@ export const getAllCompanions = async ({ limit = 10, page = 1, subject, topic }:
 
     if(error) throw new Error(error.message);
 
-    return companions;
+    // If no user is logged in, return companions without bookmark status
+    if (!userId) {
+        return companions?.map(companion => ({
+            ...companion,
+            bookmarked: false
+        })) || [];
+    }
+
+    // Get user's bookmarks separately
+    const { data: userBookmarks } = await supabase
+        .from('bookmarks')
+        .select('tutor_id')
+        .eq('user_id', userId);
+
+    const bookmarkedTutorIds = new Set(userBookmarks?.map(b => b.tutor_id) || []);
+
+    // Add bookmarked property based on whether user has bookmarked this companion
+    return companions?.map(companion => ({
+        ...companion,
+        bookmarked: bookmarkedTutorIds.has(companion.id)
+    })) || [];
 }
 
 export const getCompanion = async (id: string) => {
@@ -54,12 +75,12 @@ export const getCompanion = async (id: string) => {
     return data[0];
 }
 
-export const addToSessionHistory = async (companionId: string) => {
+export const addToSessionHistory = async (tutorId: string) => {
     const { userId } = await auth();
     const supabase = createSupabaseClient();
     const { data, error } = await supabase.from('session_history')
         .insert({
-            companion_id: companionId,
+            tutor_id: tutorId,
             user_id: userId,
         })
 
@@ -85,14 +106,14 @@ export const getUserSessions = async (userId: string, limit = 10) => {
     const supabase = createSupabaseClient();
     const { data, error } = await supabase
         .from('session_history')
-        .select(`companions:companion_id (*)`)
+        .select(`tutors:tutor_id (*)`)
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(limit)
 
     if(error) throw new Error(error.message);
 
-    return data.map(({ companions }) => companions);
+    return data.map(({ tutors }) => tutors);
 }
 
 export const getUserCompanions = async (userId: string) => {
@@ -140,33 +161,38 @@ export const newCompanionPermissions = async () => {
 // Bookmarks
 export const addBookmark = async (tutorId: string, path: string) => {
   const { userId } = await auth();
-  if (!userId) return;
+  if (!userId) throw new Error('User not authenticated');
+  
   const supabase = createSupabaseClient();
   const { data, error } = await supabase.from("bookmarks").insert({
-    companion_id: tutorId,
+    tutor_id: tutorId,
     user_id: userId,
   });
+  
   if (error) {
     throw new Error(error.message);
   }
+  
   // Revalidate the path to force a re-render of the page
-
   revalidatePath(path);
   return data;
 };
 
 export const removeBookmark = async (companionId: string, path: string) => {
   const { userId } = await auth();
-  if (!userId) return;
+  if (!userId) throw new Error('User not authenticated');
+  
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
     .from("bookmarks")
     .delete()
     .eq("tutor_id", companionId)
     .eq("user_id", userId);
+    
   if (error) {
     throw new Error(error.message);
   }
+  
   revalidatePath(path);
   return data;
 };
@@ -174,13 +200,49 @@ export const removeBookmark = async (companionId: string, path: string) => {
 // It's almost the same as getUserCompanions, but it's for the bookmarked companions
 export const getBookmarkedCompanions = async (userId: string) => {
   const supabase = createSupabaseClient();
-  const { data, error } = await supabase
-    .from("bookmarks")
-    .select(`tutors:tutor_id (*)`) // Notice the (*) to get all the companion data
-    .eq("user_id", userId);
-  if (error) {
-    throw new Error(error.message);
+  
+  // If no userId provided, return empty array
+  if (!userId) {
+    return [];
   }
-  // We don't need the bookmarks data, so we return only the companions
-  return data.map(({ tutors }) => tutors);
+  
+  try {
+    // First get the bookmark entries for this user
+    const { data: bookmarks, error: bookmarksError } = await supabase
+      .from("bookmarks")
+      .select("tutor_id")
+      .eq("user_id", userId);
+      
+    if (bookmarksError) {
+      console.log('Bookmarks query error:', bookmarksError);
+      // Return empty array instead of throwing error to prevent page crash
+      return [];
+    }
+    
+    // If no bookmarks, return empty array
+    if (!bookmarks || bookmarks.length === 0) {
+      return [];
+    }
+    
+    // Get the actual tutor data for bookmarked tutors
+    const tutorIds = bookmarks.map(b => b.tutor_id);
+    const { data: tutors, error: tutorsError } = await supabase
+      .from("tutors")
+      .select("*")
+      .in("id", tutorIds);
+      
+    if (tutorsError) {
+      console.log('Tutors query error:', tutorsError);
+      return [];
+    }
+    
+    // Add bookmarked property (always true for bookmarked companions)
+    return tutors?.map(tutor => ({
+      ...tutor,
+      bookmarked: true
+    })) || [];
+  } catch (error) {
+    console.log('Unexpected error in getBookmarkedCompanions:', error);
+    return [];
+  }
 };

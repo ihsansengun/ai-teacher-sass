@@ -12,26 +12,55 @@ const NewCompanion = async () => {
     const canCreateCompanion = await newCompanionPermissions();
 
     return (
-        <main className="min-lg:w-1/3 min-md:w-2/3 items-center justify-center">
+        <main className="max-w-2xl mx-auto">
             {canCreateCompanion ? (
-                <article className="w-full gap-4 flex flex-col">
-                    <h1>Companion Builder</h1>
+                <div className="space-y-8">
+                    <div className="text-center space-y-4">
+                        <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-primary-soft bg-clip-text text-transparent">
+                            Companion Builder
+                        </h1>
+                        <p className="text-text-secondary max-w-lg mx-auto">
+                            Create a personalized AI tutor that matches your learning style and goals. 
+                            Every detail can be customized to create the perfect learning experience.
+                        </p>
+                    </div>
 
                     <CompanionForm />
+                </div>
+            ) : (
+                <article className="companion-limit">
+                    <div className="relative mb-6">
+                        <Image 
+                            src="/images/limit.svg" 
+                            alt="Companion limit reached" 
+                            width={300} 
+                            height={200}
+                            className="opacity-90"
+                        />
+                    </div>
+                    <div className="cta-badge mb-4">
+                        <span className="font-semibold">🚀 Upgrade your plan</span>
+                    </div>
+                    <h1 className="text-2xl lg:text-3xl font-bold mb-4">You've Reached Your Limit</h1>
+                    <p className="text-text-secondary leading-relaxed mb-6">
+                        You've reached your companion limit. Upgrade to create unlimited companions and unlock premium features.
+                    </p>
+                    <Link href="/subscription" className="btn-primary w-full justify-center">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                        <span>Upgrade My Plan</span>
+                        <svg 
+                            className="w-4 h-4 transition-transform duration-200 hover:translate-x-1" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                    </Link>
                 </article>
-                ) : (
-                    <article className="companion-limit">
-                        <Image src="/images/limit.svg" alt="Companion limit reached" width={360} height={230} />
-                        <div className="cta-badge">
-                            Upgrade your plan
-                        </div>
-                        <h1>You’ve Reached Your Limit</h1>
-                        <p>You’ve reached your companion limit. Upgrade to create more companions and premium features.</p>
-                        <Link href="/subscription" className="btn-primary w-full justify-center" >
-                            Upgrade My Plan
-                        </Link>
-                    </article>
-                )}
+            )}
         </main>
     )
 }

@@ -21,66 +21,91 @@ interface CompanionsListProps {
 const CompanionsList = ({ title, companions, classNames }: CompanionsListProps) => {
     return (
         <article className={cn('companion-list', classNames)}>
-            <h2 className="font-bold text-3xl">{title}</h2>
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="font-semibold text-2xl lg:text-3xl text-text-primary">{title}</h2>
+                {companions && companions.length > 0 && (
+                    <span className="text-sm text-text-tertiary bg-muted px-3 py-1 rounded-full">
+                        {companions.length} {companions.length === 1 ? 'session' : 'sessions'}
+                    </span>
+                )}
+            </div>
 
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="text-lg w-2/3">Lessons</TableHead>
-                        <TableHead className="text-lg">Subject</TableHead>
-                        <TableHead className="text-lg text-right">Duration</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {companions?.map(({id, subject, name, topic, duration}, index) => (
-                        <TableRow key={`${id}-${index}`}>
-                            <TableCell>
-                                <Link href={`/companions/${id}`}>
-                                    <div className="flex items-center gap-2">
-                                        <div className="size-[72px] flex items-center justify-center rounded-lg max-md:hidden" style={{ backgroundColor: getSubjectColor(subject) }}>
-                                            <Image
-                                                src={`/icons/${subject}.svg`}
-                                                alt={subject}
-                                                width={35}
-                                                height={35} />
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <p className="font-bold text-2xl">
-                                                {name}
-                                            </p>
-                                            <p className="text-lg">
-                                                {topic}
-                                            </p>
-                                        </div>
+            {!companions || companions.length === 0 ? (
+                <div className="text-center py-12 space-y-4">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                        <svg className="w-8 h-8 text-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-medium text-text-primary mb-2">No sessions yet</h3>
+                        <p className="text-text-secondary">Start your first learning session to see your history here.</p>
+                    </div>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {companions.map(({id, subject, name, topic, duration}, index) => (
+                        <div key={`${id}-${index}`}>
+                            <Link href={`/companions/${id}`}>
+                                <div className="flex items-center gap-4 p-4 rounded-xl border border-border-subtle hover:border-border hover:bg-muted/50 transition-all duration-200 hover:shadow-sm">
+                                    {/* Avatar */}
+                                    <div 
+                                        className="w-12 h-12 lg:w-14 lg:h-14 flex items-center justify-center rounded-xl shadow-sm flex-shrink-0" 
+                                        style={{ backgroundColor: getSubjectColor(subject) + "20" }}
+                                    >
+                                        <Image
+                                            src={`/icons/${subject}.svg`}
+                                            alt={subject}
+                                            width={24}
+                                            height={24}
+                                        />
                                     </div>
-                                </Link>
-                            </TableCell>
-                            <TableCell>
-                                <div className="subject-badge w-fit max-md:hidden">
-                                    {subject}
+
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-semibold text-text-primary hover:text-primary transition-colors duration-200 mb-1 truncate">
+                                            {name}
+                                        </h3>
+                                        <p className="text-sm text-text-secondary line-clamp-2">
+                                            {topic}
+                                        </p>
+                                    </div>
+
+                                    {/* Meta */}
+                                    <div className="flex items-center gap-4 flex-shrink-0">
+                                        {/* Subject badge - hidden on mobile */}
+                                        <div className="hidden md:block">
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                                                {subject}
+                                            </span>
+                                        </div>
+
+                                        {/* Duration */}
+                                        <div className="flex items-center gap-1.5 text-sm text-text-tertiary">
+                                            <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center">
+                                                <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <span className="font-medium">{duration}m</span>
+                                        </div>
+
+                                        {/* Arrow */}
+                                        <svg 
+                                            className="w-4 h-4 text-text-tertiary transition-transform duration-200 hover:translate-x-1" 
+                                            fill="none" 
+                                            viewBox="0 0 24 24" 
+                                            stroke="currentColor"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
                                 </div>
-                                <div className="flex items-center justify-center rounded-lg w-fit p-2 md:hidden" style={{backgroundColor: getSubjectColor(subject)}}>
-                            <Image
-                                src={`/icons/${subject}.svg`}
-                                alt={subject}
-                                width={18}
-                                height={18}
-                            />
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex items-center gap-2 w-full justify-end">
-                                    <p className="text-2xl">
-                                        {duration} {' '}
-                                        <span className="max-md:hidden">mins</span>
-                                    </p>
-                                    <Image src="/icons/clock.svg" alt="minutes" width={14} height={14} className="md:hidden" />
-                                </div>
-                            </TableCell>
-                        </TableRow>
+                            </Link>
+                        </div>
                     ))}
-                </TableBody>
-            </Table>
+                </div>
+            )}
         </article>
     )
 }
