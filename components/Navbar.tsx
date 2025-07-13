@@ -17,8 +17,13 @@ const Navbar = () => {
                             className="transition-transform duration-200 hover:scale-105"
                         />
                     </div>
-                    <div className="font-semibold text-lg text-text-primary hidden sm:block">
-                        Your AI Teacher
+                    <div className="relative group">
+                        <span className="font-semibold text-xs sm:text-sm md:text-lg gradient-text-primary relative z-10 tracking-wide flex items-center">
+                            <span>Your AI</span>
+                            <span className="inline-block w-1 h-1 bg-accent-soft rounded-full mx-0.5 sm:mx-1 animate-pulse"></span>
+                            <span className="font-bold tracking-wider">Teacher</span>
+                        </span>
+                        <div className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-primary/30 via-accent-soft/30 to-primary-soft/30 rounded-full animate-pulse-glow transform transition-all duration-300 group-hover:h-1.5 group-hover:shadow-sm group-hover:shadow-primary/20"></div>
                     </div>
                 </div>
             </Link>

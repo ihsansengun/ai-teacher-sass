@@ -23,7 +23,7 @@ const Page = async () => {
             </div>
           </div>
           <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold bg-gradient-to-r from-primary via-primary-soft to-accent-soft bg-clip-text text-transparent px-4">
-            🤖 Your AI Teacher
+            Your AI Teacher
           </h1>
           <p className="text-lg sm:text-xl lg:text-2xl text-text-secondary max-w-3xl mx-auto leading-relaxed font-medium px-4">
             Meet your friendly AI companions that make learning fun! Chat, explore, and master any subject with personalized tutors designed just for you.
@@ -44,10 +44,10 @@ const Page = async () => {
             <p className="text-text-secondary text-sm sm:text-base">Start learning with our most popular companions</p>
           </div>
           <span className="text-xs sm:text-sm font-semibold text-primary bg-primary/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-primary/20 self-start sm:self-auto">
-            ✨ Featured
+            Featured
           </span>
         </div>
-        
+
         <div className="companions-grid">
           {companions.map((companion) => (
             <CompanionCard

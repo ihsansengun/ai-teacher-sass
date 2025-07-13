@@ -14,21 +14,21 @@ const NavItems = () => {
     const pathname = usePathname();
 
     return (
-        <nav className="hidden md:flex items-center gap-2">
+        <nav className="flex items-center gap-1 sm:gap-2">
             {navItems.map(({ label, href }) => (
                 <Link
                     href={href}
                     key={label}
                     className={cn(
-                        "relative px-4 py-2.5 text-sm font-semibold rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/10",
+                        "relative px-2 sm:px-4 py-1.5 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-xl sm:rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-primary/10",
                         pathname === href 
-                            ? 'text-white bg-gradient-to-r from-primary to-primary-soft shadow-lg' 
-                            : 'text-text-secondary hover:text-primary hover:bg-primary/8 border-2 border-transparent hover:border-primary/20'
+                            ? 'text-white bg-gradient-to-r from-primary to-primary-soft shadow-md' 
+                            : 'text-text-secondary hover:text-primary hover:bg-primary/8 border border-transparent hover:border-primary/20'
                     )}
                 >
                     {label}
                     {pathname === href && (
-                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full animate-pulse" />
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse" />
                     )}
                 </Link>
             ))}

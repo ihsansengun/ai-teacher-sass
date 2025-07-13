@@ -8,18 +8,18 @@ const Cta = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/5"></div>
             <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
             <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-accent-warm/20 rounded-full blur-xl"></div>
-            
+
             <div className="relative z-10 flex flex-col items-center text-center gap-6">
                 <div className="bg-gradient-to-r from-accent-warm/20 to-accent-gentle/20 rounded-full px-4 py-2 border border-white/20">
-                    <span className="font-semibold text-sm">🎯 Custom AI Tutor</span>
+                    <span className="font-semibold text-sm">Custom AI Tutor</span>
                 </div>
-                
+
                 <div className="space-y-4">
                     <h2 className="text-2xl lg:text-3xl font-bold leading-tight">
                         Build Your Dream
                         <br />
                         <span className="bg-gradient-to-r from-accent-warm to-white bg-clip-text text-transparent">
-                            Learning Buddy 🤖
+                            Learning Buddy
                         </span>
                     </h2>
                     <p className="text-white/80 leading-relaxed max-w-sm mx-auto">
@@ -30,7 +30,7 @@ const Cta = () => {
                 <div className="relative my-4">
                     <div className="w-24 h-24 bg-white/15 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20 animate-float">
                         <div className="w-16 h-16 bg-gradient-to-br from-accent-warm to-accent-gentle rounded-full flex items-center justify-center">
-                            <span className="text-2xl">🎨</span>
+                            <span className="text-2xl"></span>
                         </div>
                     </div>
                 </div>
