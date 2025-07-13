@@ -22,7 +22,7 @@ const Page = async () => {
               </div>
             </div>
           </div>
-          <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold bg-gradient-to-r from-primary via-primary-soft to-accent-soft bg-clip-text text-transparent px-4">
+          <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold bg-gradient-to-r from-[#1E90FF] via-[#5195ED] to-[#00CFFF] bg-clip-text text-transparent px-4 drop-shadow-sm">
             Your AI Teacher
           </h1>
           <p className="text-lg sm:text-xl lg:text-2xl text-text-secondary max-w-3xl mx-auto leading-relaxed font-medium px-4">
@@ -43,7 +43,7 @@ const Page = async () => {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text-primary">Featured AI Tutors</h2>
             <p className="text-text-secondary text-sm sm:text-base">Start learning with our most popular companions</p>
           </div>
-          <span className="text-xs sm:text-sm font-semibold text-primary bg-primary/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-primary/20 self-start sm:self-auto">
+          <span className="text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#1E90FF] to-[#007AFF] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-[#5195ED]/30 self-start sm:self-auto shadow-sm">
             Featured
           </span>
         </div>

@@ -25,9 +25,13 @@ export default function RootLayout({
       <body className={`${inter.variable} antialiased`}>
         <ClerkProvider appearance={{ 
           variables: { 
-            colorPrimary: '#6366f1',
-            colorBackground: '#fafafa',
-            colorInputBackground: '#ffffff',
+            colorPrimary: '#B0CCDA',
+            colorBackground: '#F5FAFC',
+            colorInputBackground: '#FFFFFF',
+            colorText: '#1C1C1E',
+            colorTextSecondary: '#5B6A7C',
+            colorSuccess: '#00BFA6',
+            colorDanger: '#FF6B6B',
             borderRadius: '0.75rem'
           }
         }}>

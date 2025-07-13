@@ -37,7 +37,7 @@ const CompanionCard = ({
       // You could add a toast notification here in the future
     }
   };
-  
+
   return (
     <article className="companion-card floating-particles relative">
       {/* Background decoration */}
@@ -49,7 +49,7 @@ const CompanionCard = ({
           }}
         />
       </div>
-      
+
       {/* Header with badge and bookmark */}
       <div className="flex justify-between items-start mb-6 relative z-10">
         <div className="subject-badge">{subject}</div>
@@ -110,7 +110,7 @@ const CompanionCard = ({
           <p className="text-sm text-text-secondary line-clamp-3 leading-relaxed">
             {topic}
           </p>
-          
+
           {/* Meta info */}
           <div className="flex items-center justify-between pt-1">
             <div className="flex items-center gap-2">
@@ -123,11 +123,11 @@ const CompanionCard = ({
                 {duration}min
               </span>
             </div>
-            
+
             {/* Popularity indicator */}
             <div className="flex items-center gap-1">
-              <div className="w-1 h-1 bg-accent-warm rounded-full animate-pulse"></div>
-              <span className="text-xs text-accent-warm font-medium">Popular</span>
+              <div className="w-1 h-1 bg-[#00B894] rounded-full animate-pulse"></div>
+              <span className="text-xs text-[#00B894] font-medium">Popular</span>
             </div>
           </div>
         </div>
