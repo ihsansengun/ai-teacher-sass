@@ -22,7 +22,7 @@ import {
 import { subjects } from "@/constants";
 import { Textarea } from "@/components/ui/textarea";
 import { redirect } from "next/navigation";
-import { createCompanion } from "@/lib/actions/Companion.actions";
+import { createCompanion } from "@/lib/actions/companion.actions";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
