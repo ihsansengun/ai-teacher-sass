@@ -60,7 +60,7 @@ const CompanionForm = () => {
     }
 
     return (
-        <div className="bg-surface rounded-2xl border border-border-subtle p-8 shadow-sm">
+        <div className="bg-surface rounded-2xl border border-border-soft p-8 shadow-sm">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField

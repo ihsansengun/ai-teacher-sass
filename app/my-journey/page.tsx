@@ -26,7 +26,7 @@ const Profile = async () => {
   return (
     <main className="max-w-5xl mx-auto space-y-8">
       {/* Profile Header */}
-      <section className="bg-surface rounded-2xl border border-border-subtle p-8 shadow-sm">
+      <section className="bg-surface rounded-2xl border border-border-soft p-8 shadow-sm">
         <div className="flex flex-col lg:flex-row justify-between gap-6 lg:items-center">
           <div className="flex gap-6 items-center">
             <div className="relative">
@@ -37,7 +37,7 @@ const Profile = async () => {
                 height={80}
                 className="rounded-2xl ring-4 ring-primary/10"
               />
-              <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-accent-mint rounded-full border-4 border-surface flex items-center justify-center">
+              <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-accent-soft rounded-full border-4 border-surface flex items-center justify-center">
                 <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
@@ -56,7 +56,7 @@ const Profile = async () => {
           <div className="flex gap-4">
             <div className="bg-gradient-to-br from-primary/5 to-primary-soft/5 border border-primary/20 rounded-2xl p-4 space-y-2 min-w-[120px]">
               <div className="flex gap-2 items-center">
-                <div className="w-8 h-8 bg-accent-mint/10 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-accent-soft/10 rounded-lg flex items-center justify-center">
                   <Image
                     src="/icons/check.svg"
                     alt="checkmark"
@@ -70,9 +70,9 @@ const Profile = async () => {
               <p className="text-sm text-text-secondary font-medium">Lessons completed</p>
             </div>
             
-            <div className="bg-gradient-to-br from-accent-orange/5 to-yellow-400/5 border border-accent-orange/20 rounded-2xl p-4 space-y-2 min-w-[120px]">
+            <div className="bg-gradient-to-br from-accent-warm/5 to-yellow-400/5 border border-accent-warm/20 rounded-2xl p-4 space-y-2 min-w-[120px]">
               <div className="flex gap-2 items-center">
-                <div className="w-8 h-8 bg-accent-orange/10 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-accent-warm/10 rounded-lg flex items-center justify-center">
                   <Image 
                     src="/icons/cap.svg" 
                     alt="cap" 
@@ -92,7 +92,7 @@ const Profile = async () => {
       {/* Learning Journey Sections */}
       <div className="space-y-6">
         <Accordion type="multiple" className="space-y-4">
-          <AccordionItem value="recent" className="bg-surface rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+          <AccordionItem value="recent" className="bg-surface rounded-2xl border border-border-soft shadow-sm overflow-hidden">
             <AccordionTrigger className="px-8 py-6 text-xl font-semibold text-text-primary hover:bg-muted/50 transition-colors duration-200">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -114,11 +114,11 @@ const Profile = async () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="bookmarks" className="bg-surface rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+          <AccordionItem value="bookmarks" className="bg-surface rounded-2xl border border-border-soft shadow-sm overflow-hidden">
             <AccordionTrigger className="px-8 py-6 text-xl font-semibold text-text-primary hover:bg-muted/50 transition-colors duration-200">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-accent-orange/10 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-accent-orange" fill="currentColor" viewBox="0 0 20 20">
+                <div className="w-8 h-8 bg-accent-warm/10 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-accent-warm" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
                   </svg>
                 </div>
@@ -136,11 +136,11 @@ const Profile = async () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="companions" className="bg-surface rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+          <AccordionItem value="companions" className="bg-surface rounded-2xl border border-border-soft shadow-sm overflow-hidden">
             <AccordionTrigger className="px-8 py-6 text-xl font-semibold text-text-primary hover:bg-muted/50 transition-colors duration-200">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-accent-mint/10 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-accent-mint" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-8 h-8 bg-accent-soft/10 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-accent-soft" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
