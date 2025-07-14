@@ -52,10 +52,10 @@ const SubjectFilter = () => {
             <SelectTrigger className="glass-panel rounded-xl items-center flex gap-3 px-4 py-3 h-[52px] border border-glass-border hover:border-neural-purple/30 focus-within:border-neural-purple/50 transition-all duration-300 capitalize min-w-[160px] text-neural-800">
                 <SelectValue placeholder="Subject" />
             </SelectTrigger>
-            <SelectContent className="glass-panel border border-glass-border rounded-xl shadow-lg backdrop-blur-16">
-                <SelectItem value="all" className="text-neural-800 hover:bg-neural-100 focus:bg-neural-100">All subjects</SelectItem>
+            <SelectContent className="glass-panel border border-glass-border rounded-xl shadow-lg backdrop-blur-16 mt-2 max-h-[300px] overflow-y-auto">
+                <SelectItem value="all" className="text-neural-800 hover:bg-neural-purple/20 focus:bg-neural-purple/20 data-[state=checked]:bg-neural-purple/30 data-[state=checked]:text-neural-900 transition-colors duration-200">All subjects</SelectItem>
                 {subjects.map((subject) => (
-                    <SelectItem key={subject} value={subject} className="capitalize text-neural-800 hover:bg-neural-100 focus:bg-neural-100">
+                    <SelectItem key={subject} value={subject} className="capitalize text-neural-800 hover:bg-neural-purple/20 focus:bg-neural-purple/20 data-[state=checked]:bg-neural-purple/30 data-[state=checked]:text-neural-900 transition-colors duration-200">
                         {subject}
                     </SelectItem>
                 ))}

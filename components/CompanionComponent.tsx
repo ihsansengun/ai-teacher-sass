@@ -95,7 +95,7 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName, userI
     }
 
     return (
-        <section className="voice-container h-[70vh] relative overflow-hidden">
+        <section className="voice-container min-h-[70vh] relative">
             {/* Neural Background Ambience */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-10 left-10 w-20 h-20 bg-neural-purple/10 rounded-full blur-xl animate-bounce"></div>
@@ -105,7 +105,7 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName, userI
 
             <section className="flex gap-8 max-sm:flex-col h-full">
                 {/* AI Companion Section */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-6 relative">
+                <div className="flex-1 flex flex-col items-center justify-center gap-6 relative max-sm:order-2">
                     {/* Neural Avatar Container */}
                     <div className="relative w-80 h-80 max-sm:w-32 max-sm:h-32">
                         {/* Outer Neural Ring */}
@@ -191,9 +191,9 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName, userI
                 </div>
 
                 {/* User Controls Section */}
-                <div className="w-80 max-sm:w-full flex flex-col gap-6">
-                    {/* User Avatar Card */}
-                    <div className="glass-panel rounded-2xl p-6 text-center space-y-4">
+                <div className="w-80 max-sm:w-full flex flex-col gap-6 max-sm:order-1">
+                    {/* User Avatar Card - Moved to top */}
+                    <div className="glass-panel rounded-2xl p-6 text-center space-y-4 order-first">
                         <div className="mx-auto w-24 h-24 glass-panel rounded-full p-1">
                             <Image 
                                 src={userImage} 
@@ -206,10 +206,33 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName, userI
                         <h3 className="font-bold text-xl text-neural-900">{userName}</h3>
                     </div>
 
+                    {/* Speaker Animation - Above microphone */}
+                    <div className="glass-panel rounded-2xl p-4 text-center">
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-center gap-2">
+                                <div className={cn(
+                                    "w-3 h-3 rounded-full transition-all duration-300",
+                                    callStatus === CallStatus.ACTIVE ? "bg-neural-green animate-pulse" : "bg-neural-500"
+                                )}></div>
+                                <div className={cn(
+                                    "w-2 h-2 rounded-full transition-all duration-300",
+                                    callStatus === CallStatus.ACTIVE ? "bg-neural-green animate-pulse" : "bg-neural-500"
+                                )}></div>
+                                <div className={cn(
+                                    "w-3 h-3 rounded-full transition-all duration-300",
+                                    callStatus === CallStatus.ACTIVE ? "bg-neural-green animate-pulse" : "bg-neural-500"
+                                )}></div>
+                            </div>
+                            <p className="text-sm text-neural-600">
+                                {callStatus === CallStatus.ACTIVE ? "Speaking..." : "Ready to speak"}
+                            </p>
+                        </div>
+                    </div>
+
                     {/* Microphone Control */}
                     <button 
                         className={cn(
-                            "glass-panel rounded-2xl p-6 flex flex-col items-center gap-4 transition-all duration-300",
+                            "glass-panel rounded-2xl p-6 max-sm:p-4 flex flex-col items-center gap-4 max-sm:gap-2 transition-all duration-300",
                             "hover:scale-105 group relative overflow-hidden",
                             callStatus !== CallStatus.ACTIVE && "opacity-50 cursor-not-allowed",
                             isMuted ? "border-destructive/30" : "border-neural-green/30"
@@ -218,7 +241,7 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName, userI
                         disabled={callStatus !== CallStatus.ACTIVE}
                     >
                         <div className={cn(
-                            "w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300",
+                            "w-16 h-16 max-sm:w-12 max-sm:h-12 rounded-full flex items-center justify-center transition-all duration-300",
                             isMuted ? "bg-destructive/20" : "bg-neural-green/20"
                         )}>
                             <Image 
@@ -226,10 +249,11 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName, userI
                                 alt="microphone" 
                                 width={32} 
                                 height={32} 
+                                className="max-sm:w-6 max-sm:h-6"
                             />
                         </div>
                         <div className="text-center">
-                            <p className="font-semibold text-sm">
+                            <p className="font-semibold text-sm max-sm:text-xs">
                                 {isMuted ? 'Microphone Off' : 'Microphone On'}
                             </p>
                             <p className="text-xs text-neural-500 max-sm:hidden">

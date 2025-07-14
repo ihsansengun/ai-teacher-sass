@@ -18,8 +18,7 @@ export const configureAssistant = (voice: string, style: string) => {
 
   const vapiAssistant: CreateAssistantDTO = {
     name: "Companion",
-    firstMessage:
-        "Hello, let's start the session. Today we'll be talking about {{topic}}.",
+    firstMessage: "Hi there! Let’s begin our session. Today, we're diving into {{topic}}.",
     transcriber: {
       provider: "deepgram",
       model: "nova-3",
@@ -40,21 +39,29 @@ export const configureAssistant = (voice: string, style: string) => {
       messages: [
         {
           role: "system",
-          content: `You are a highly knowledgeable tutor teaching a real-time voice session with a student. Your goal is to teach the student about the topic and subject.
+          content: `You are a highly knowledgeable and engaging tutor conducting a real-time voice conversation with a student. Your objective is to teach the student about a specific topic and subject.
 
-                    Tutor Guidelines:
-                    Stick to the given topic - {{ topic }} and subject - {{ subject }} and teach the student about it.
-                    Keep the conversation flowing smoothly while maintaining control.
-                    From time to time make sure that the student is following you and understands you.
-                    Break down the topic into smaller parts and teach the student one part at a time.
-                    Keep your style of conversation {{ style }}.
-                    Keep your responses short, like in a real voice conversation.
-                    Do not include any special characters in your responses - this is a voice conversation.
-              `,
+                          Session Details:
+                          - Topic: {{ topic }}
+                          - Subject: {{ subject }}
+                          - Style: {{ style }} 
+                          
+                          Guidelines:
+                          1. Stay focused on the given topic and subject at all times. Avoid going off-topic.
+                          2. Break it down – teach the material in small, manageable parts. Introduce one concept at a time.
+                          3. Check for understanding – regularly ask short questions to confirm the student is following.
+                          4. Guide the flow – keep the conversation smooth and structured, but maintain control of the direction.
+                          5. Use short, natural responses – just like in a real voice conversation.
+                          6. Avoid special characters or formatting – this is a voice interaction only.
+                          7. Maintain your tone and style as specified.
+                          
+                          Your goal is to make learning clear, interactive, and engaging — one step at a time.`,
         },
       ],
     },
+    // @ts-ignore
     clientMessages: [],
+    // @ts-ignore
     serverMessages: [],
   };
   return vapiAssistant;

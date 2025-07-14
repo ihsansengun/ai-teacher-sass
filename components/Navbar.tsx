@@ -122,7 +122,7 @@ const Navbar = () => {
                 
                 {/* Menu Panel */}
                 <div className={cn(
-                    "absolute top-0 right-0 w-80 max-w-[85vw] h-full glass-panel border-l border-glass-border transition-transform duration-300",
+                    "absolute top-0 right-0 w-full max-w-[85vw] sm:w-80 h-full glass-panel border-l border-glass-border transition-transform duration-300",
                     isMenuOpen ? "translate-x-0" : "translate-x-full"
                 )}>
                     <div className="p-6 space-y-6">
