@@ -13,11 +13,15 @@ const CompanionsLibrary = async ({ searchParams }: SearchParams) => {
 
     return (
         <main>
-            <section className="flex justify-between gap-4 max-sm:flex-col">
-                <h1>Companion Library</h1>
-                <div className="flex gap-4">
-                    <SearchInput />
-                    <SubjectFilter />
+            <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-6">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold gradient-neural">Companion Library</h1>
+                <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                    <div className="flex-1 sm:flex-initial sm:min-w-[280px]">
+                        <SearchInput />
+                    </div>
+                    <div className="flex-shrink-0 sm:min-w-[160px]">
+                        <SubjectFilter />
+                    </div>
                 </div>
             </section>
             <section className="companions-grid">

@@ -11,9 +11,19 @@ const SearchInput = () => {
     const searchParams = useSearchParams();
     const query = searchParams.get('topic') || '';
 
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(query);
+
+    // Update searchQuery when URL query changes
+    useEffect(() => {
+        if (query !== searchQuery) {
+            setSearchQuery(query);
+        }
+    }, [query]);
 
     useEffect(() => {
+        // Skip the effect if the searchQuery matches the URL query
+        if (searchQuery === query) return;
+
         const delayDebounceFn = setTimeout(() => {
             if(searchQuery) {
                 const newUrl = formUrlQuery({
@@ -34,14 +44,16 @@ const SearchInput = () => {
                 }
             }
         }, 500)
-    }, [searchQuery, router, searchParams, pathname]);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, pathname]);
 
     return (
-        <div className="relative border border-[#5195ED]/20 hover:border-[#5195ED]/30 focus-within:border-[#5195ED]/50 rounded-2xl items-center flex gap-3 px-4 py-3 h-fit bg-white transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-[#5195ED]/10 focus-within:shadow-md focus-within:shadow-[#5195ED]/15">
+        <div className="relative glass-panel rounded-xl items-center flex gap-3 px-4 py-3 h-[52px] transition-all duration-300 border border-glass-border hover:border-neural-purple/30 focus-within:border-neural-purple/50">
             <Image src="/icons/search.svg" alt="search" width={18} height={18} className="opacity-60" />
             <input
                 placeholder="Search companions..."
-                className="outline-none bg-transparent text-text-primary placeholder:text-text-tertiary flex-1 font-medium"
+                className="outline-none bg-transparent text-neural-800 placeholder:text-neural-500 flex-1 font-medium"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
             />
