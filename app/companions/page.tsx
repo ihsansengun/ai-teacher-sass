@@ -3,11 +3,12 @@ import CompanionCard from "@/components/CompanionCard";
 import {getSubjectColor} from "@/lib/utils";
 import SearchInput from "@/components/SearchInput";
 import SubjectFilter from "@/components/SubjectFilter";
+import type {SearchParams} from "@/types/index.d";
 
 const CompanionsLibrary = async ({ searchParams }: SearchParams) => {
     const filters = await searchParams;
-    const subject = filters.subject ? filters.subject : '';
-    const topic = filters.topic ? filters.topic : '';
+    const subject = Array.isArray(filters.subject) ? filters.subject[0] : filters.subject || '';
+    const topic = Array.isArray(filters.topic) ? filters.topic[0] : filters.topic || '';
 
     const companions = await getAllCompanions({ subject, topic });
 

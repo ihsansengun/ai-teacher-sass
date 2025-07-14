@@ -21,13 +21,42 @@ export const voices = {
   female: { casual: "ZIlrSGI4jZqobxRKprJz", formal: "sarah" },
 };
 
+export const teachingStyles = {
+  quick: {
+    id: "quick",
+    name: "Quick & Focused",
+    description: "Rapid-fire Q&A, essential concepts only",
+    icon: "⚡",
+    color: "#f59e0b",
+    duration: 5, // Keep for backward compatibility mapping
+  },
+  balanced: {
+    id: "balanced", 
+    name: "Balanced & Interactive",
+    description: "Mixed explanations with practice exercises",
+    icon: "⚖️",
+    color: "#3b82f6",
+    duration: 15, // Keep for backward compatibility mapping
+  },
+  deep: {
+    id: "deep",
+    name: "Deep & Comprehensive", 
+    description: "Detailed explanations with examples and context",
+    icon: "🧠",
+    color: "#6366f1",
+    duration: 30, // Keep for backward compatibility mapping
+  },
+} as const;
+
+export type TeachingStyleId = keyof typeof teachingStyles;
+
 export const recentSessions = [
   {
     id: "1",
     subject: "science",
     name: "Neura the Brainy Explorer",
     topic: "Neural Network of the Brain",
-    duration: 45,
+    teachingStyle: "deep",
     color: "#E5D0FF",
   },
   {
@@ -35,7 +64,7 @@ export const recentSessions = [
     subject: "maths",
     name: "Countsy the Number Wizard",
     topic: "Derivatives & Integrals",
-    duration: 30,
+    teachingStyle: "deep",
     color: "#FFDA6E",
   },
   {
@@ -43,7 +72,7 @@ export const recentSessions = [
     subject: "language",
     name: "Verba the Vocabulary Builder",
     topic: "English Literature",
-    duration: 30,
+    teachingStyle: "balanced",
     color: "#BDE7FF",
   },
   {
@@ -51,7 +80,7 @@ export const recentSessions = [
     subject: "coding",
     name: "Codey the Logic Hacker",
     topic: "Intro to If-Else Statements",
-    duration: 45,
+    teachingStyle: "deep",
     color: "#FFC8E4",
   },
   {
@@ -59,7 +88,7 @@ export const recentSessions = [
     subject: "history",
     name: "Memo, the Memory Keeper",
     topic: "World Wars: Causes & Consequences",
-    duration: 15,
+    teachingStyle: "balanced",
     color: "#FFECC8",
   },
   {
@@ -67,7 +96,7 @@ export const recentSessions = [
     subject: "economics",
     name: "The Market Maestro",
     topic: "The Basics of Supply & Demand",
-    duration: 10,
+    teachingStyle: "quick",
     color: "#C8FFDF",
   },
 ];

@@ -3,14 +3,24 @@
 import {auth} from "@clerk/nextjs/server";
 import {createSupabaseClient} from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
+import { canCreateCompanion } from "./subscription.actions";
+import type { CreateCompanion } from "@/types/index.d";
 
 export const createCompanion = async (formData: CreateCompanion) => {
     const { userId: author } = await auth();
     const supabase = createSupabaseClient();
 
+    // Map camelCase to snake_case for database
+    const { teachingStyle, ...rest } = formData;
+    const dbData = {
+        ...rest,
+        author,
+        teaching_style: teachingStyle
+    };
+
     const { data, error } = await supabase
         .from('tutors')
-        .insert({...formData, author })
+        .insert(dbData)
         .select();
 
     if(error || !data) throw new Error(error?.message || 'Failed to create a companion');
@@ -19,47 +29,80 @@ export const createCompanion = async (formData: CreateCompanion) => {
 }
 
 export const getAllCompanions = async ({ limit = 10, page = 1, subject, topic }: GetAllCompanions) => {
-    const supabase = createSupabaseClient();
-    const { userId } = await auth();
+    try {
+        const supabase = createSupabaseClient();
+        const { userId } = await auth();
 
-    let query = supabase.from('tutors').select('*');
+        let query = supabase.from('tutors').select('*');
 
-    if(subject && topic) {
-        query = query.ilike('subject', `%${subject}%`)
-            .or(`topic.ilike.%${topic}%,name.ilike.%${topic}%`)
-    } else if(subject) {
-        query = query.ilike('subject', `%${subject}%`)
-    } else if(topic) {
-        query = query.or(`topic.ilike.%${topic}%,name.ilike.%${topic}%`)
-    }
+        if(subject && topic) {
+            query = query.ilike('subject', `%${subject}%`)
+                .or(`topic.ilike.%${topic}%,name.ilike.%${topic}%`)
+        } else if(subject) {
+            query = query.ilike('subject', `%${subject}%`)
+        } else if(topic) {
+            query = query.or(`topic.ilike.%${topic}%,name.ilike.%${topic}%`)
+        }
 
-    query = query.range((page - 1) * limit, page * limit - 1);
+        query = query.range((page - 1) * limit, page * limit - 1);
 
-    const { data: companions, error } = await query;
+        const { data: companions, error } = await query;
 
-    if(error) throw new Error(error.message);
+        if(error) {
+            console.error('Error fetching companions:', {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            });
+            // Return empty array instead of throwing to prevent app crash
+            return [];
+        }
 
-    // If no user is logged in, return companions without bookmark status
-    if (!userId) {
-        return companions?.map(companion => ({
+        // If no companions found, return empty array
+        if (!companions || companions.length === 0) {
+            console.log('No companions found in database');
+            return [];
+        }
+
+        // If no user is logged in, return companions without bookmark status
+        if (!userId) {
+            return companions.map(companion => ({
+                ...companion,
+                teachingStyle: companion.teaching_style,
+                bookmarked: false
+            }));
+        }
+
+        // Get user's bookmarks separately
+        const { data: userBookmarks, error: bookmarkError } = await supabase
+            .from('bookmarks')
+            .select('tutor_id')
+            .eq('user_id', userId);
+
+        if (bookmarkError) {
+            console.log('Bookmark query error:', bookmarkError);
+            // Continue without bookmarks if query fails
+            return companions.map(companion => ({
+                ...companion,
+                teachingStyle: companion.teaching_style,
+                bookmarked: false
+            }));
+        }
+
+        const bookmarkedTutorIds = new Set(userBookmarks?.map(b => b.tutor_id) || []);
+
+        // Add bookmarked property and map snake_case to camelCase
+        return companions.map(companion => ({
             ...companion,
-            bookmarked: false
-        })) || [];
+            teachingStyle: companion.teaching_style,
+            bookmarked: bookmarkedTutorIds.has(companion.id)
+        }));
+
+    } catch (error) {
+        console.error('Unexpected error in getAllCompanions:', error);
+        return [];
     }
-
-    // Get user's bookmarks separately
-    const { data: userBookmarks } = await supabase
-        .from('bookmarks')
-        .select('tutor_id')
-        .eq('user_id', userId);
-
-    const bookmarkedTutorIds = new Set(userBookmarks?.map(b => b.tutor_id) || []);
-
-    // Add bookmarked property based on whether user has bookmarked this companion
-    return companions?.map(companion => ({
-        ...companion,
-        bookmarked: bookmarkedTutorIds.has(companion.id)
-    })) || [];
 }
 
 export const getCompanion = async (id: string) => {
@@ -71,6 +114,13 @@ export const getCompanion = async (id: string) => {
         .eq('id', id);
 
     if(error) return console.log(error);
+
+    if (data && data[0]) {
+        return {
+            ...data[0],
+            teachingStyle: data[0].teaching_style
+        };
+    }
 
     return data[0];
 }
@@ -90,16 +140,32 @@ export const addToSessionHistory = async (tutorId: string) => {
 }
 
 export const getRecentSessions = async (limit = 10) => {
-    const supabase = createSupabaseClient();
-    const { data, error } = await supabase
-        .from('session_history')
-        .select(`tutors:tutor_id (*)`)
-        .order('created_at', { ascending: false })
-        .limit(limit)
+    try {
+        const supabase = createSupabaseClient();
+        const { data, error } = await supabase
+            .from('session_history')
+            .select(`tutors:tutor_id (*)`)
+            .order('created_at', { ascending: false })
+            .limit(limit)
 
-    if(error) throw new Error(error.message);
+        if(error) {
+            console.error('Error fetching recent sessions:', error);
+            return [];
+        }
 
-    return data.map(({ tutors }) => tutors);
+        if (!data || data.length === 0) {
+            console.log('No recent sessions found');
+            return [];
+        }
+
+        return data.map(({ tutors }) => ({
+            ...tutors,
+            teachingStyle: tutors.teaching_style
+        }));
+    } catch (error) {
+        console.error('Unexpected error in getRecentSessions:', error);
+        return [];
+    }
 }
 
 export const getUserSessions = async (userId: string, limit = 10) => {
@@ -113,7 +179,10 @@ export const getUserSessions = async (userId: string, limit = 10) => {
 
     if(error) throw new Error(error.message);
 
-    return data.map(({ tutors }) => tutors);
+    return data.map(({ tutors }) => ({
+        ...tutors,
+        teachingStyle: tutors.teaching_style
+    }));
 }
 
 export const getUserCompanions = async (userId: string) => {
@@ -125,37 +194,14 @@ export const getUserCompanions = async (userId: string) => {
 
     if(error) throw new Error(error.message);
 
-    return data;
+    return data?.map(companion => ({
+        ...companion,
+        teachingStyle: companion.teaching_style
+    })) || [];
 }
 
 export const newCompanionPermissions = async () => {
-    const { userId, has } = await auth();
-    const supabase = createSupabaseClient();
-
-    let limit = 0;
-
-    if(has({ plan: 'pro' })) {
-        return true;
-    } else if(has({ feature: "3_companion_limit" })) {
-        limit = 3;
-    } else if(has({ feature: "10_companion_limit" })) {
-        limit = 10;
-    }
-
-    const { data, error } = await supabase
-        .from('tutors')
-        .select('id', { count: 'exact' })
-        .eq('author', userId)
-
-    if(error) throw new Error(error.message);
-
-    const companionCount = data?.length;
-
-    if(companionCount >= limit) {
-        return false
-    } else {
-        return true;
-    }
+    return await canCreateCompanion();
 }
 
 // Bookmarks
@@ -236,9 +282,10 @@ export const getBookmarkedCompanions = async (userId: string) => {
       return [];
     }
     
-    // Add bookmarked property (always true for bookmarked companions)
+    // Add bookmarked property and map snake_case to camelCase
     return tutors?.map(tutor => ({
       ...tutor,
+      teachingStyle: tutor.teaching_style,
       bookmarked: true
     })) || [];
   } catch (error) {

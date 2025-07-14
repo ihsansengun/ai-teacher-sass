@@ -7,6 +7,9 @@ import Image from "next/image";
 import Lottie, {LottieRefCurrentProps} from "lottie-react";
 import soundwaves from '@/constants/soundwaves.json'
 import {addToSessionHistory} from "@/lib/actions/companion.actions";
+import type {CompanionComponentProps, SavedMessage} from "@/types/index.d";
+import {VoiceSessionTimer} from "@/components/VoiceSessionTimer";
+import {useVoiceSession} from "@/hooks/useVoiceSession";
 
 enum CallStatus {
     INACTIVE = 'INACTIVE',
@@ -15,13 +18,24 @@ enum CallStatus {
     FINISHED = 'FINISHED',
 }
 
-const CompanionComponent = ({ companionId, subject, topic, name, userName, userImage, style, voice }: CompanionComponentProps) => {
+const CompanionComponent = ({ companionId, subject, topic, name, userName, userImage, style, voice, teachingStyle }: CompanionComponentProps) => {
     const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [messages, setMessages] = useState<SavedMessage[]>([]);
 
     const lottieRef = useRef<LottieRefCurrentProps>(null);
+    
+    // Initialize voice session hook
+    const [sessionState, sessionActions] = useVoiceSession(companionId);
+    
+    // Auto-end session when timer reaches limit (only if session has been running)
+    useEffect(() => {
+        if (sessionState.isActive && sessionState.remainingTime <= 0 && sessionState.duration > 0) {
+            console.log('Auto-ending session due to time limit');
+            handleDisconnect();
+        }
+    }, [sessionState.isActive, sessionState.remainingTime, sessionState.duration]);
 
     useEffect(() => {
         if(lottieRef) {
@@ -34,12 +48,20 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName, userI
     }, [isSpeaking, lottieRef])
 
     useEffect(() => {
-        const onCallStart = () => setCallStatus(CallStatus.ACTIVE);
+        const onCallStart = async () => {
+            console.log('VAPI call started for companionId:', companionId);
+            setCallStatus(CallStatus.ACTIVE);
+            // Start the session timer when VAPI call actually starts
+            await sessionActions.startSession(companionId);
+        };
 
-        const onCallEnd = () => {
+        const onCallEnd = async () => {
+            console.log('VAPI call ended');
             setCallStatus(CallStatus.FINISHED);
-            addToSessionHistory(companionId)
-        }
+            // End the session timer when VAPI call ends
+            await sessionActions.endSession();
+            addToSessionHistory(companionId);
+        };
 
         const onMessage = (message: Message) => {
             if(message.type === 'transcript' && message.transcriptType === 'final') {
@@ -51,7 +73,14 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName, userI
         const onSpeechStart = () => setIsSpeaking(true);
         const onSpeechEnd = () => setIsSpeaking(false);
 
-        const onError = (error: Error) => console.log('Error', error);
+        const onError = (error: Error) => {
+            console.error('VAPI Error:', error);
+            console.error('Error details:', {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            });
+        };
 
         vapi.on('call-start', onCallStart);
         vapi.on('call-end', onCallEnd);
@@ -79,18 +108,20 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName, userI
     const handleCall = async () => {
         setCallStatus(CallStatus.CONNECTING)
 
+        // Don't start timer here - wait for VAPI onCallStart event
+
         const assistantOverrides = {
-            variableValues: { subject, topic, style },
+            variableValues: { subject, topic, style, teachingStyle },
             clientMessages: ["transcript"],
             serverMessages: [],
         }
 
         // @ts-expect-error - vapi.start types are incompatible with our configuration
-        vapi.start(configureAssistant(voice, style), assistantOverrides)
+        vapi.start(configureAssistant(voice, style, teachingStyle), assistantOverrides)
     }
 
-    const handleDisconnect = () => {
-        setCallStatus(CallStatus.FINISHED)
+    const handleDisconnect = async () => {
+        // Don't end timer here - let VAPI onCallEnd event handle it
         vapi.stop()
     }
 
@@ -261,6 +292,18 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName, userI
                             </p>
                         </div>
                     </button>
+
+                    {/* Voice Session Timer */}
+                    <div className="space-y-4">
+                        <VoiceSessionTimer 
+                            sessionState={sessionState}
+                            sessionActions={sessionActions}
+                            onSessionEnd={() => {
+                                setCallStatus(CallStatus.FINISHED);
+                                addToSessionHistory(companionId);
+                            }}
+                        />
+                    </div>
 
                     {/* Session Control Button */}
                     <button 

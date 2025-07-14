@@ -21,10 +21,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {subjects} from "@/constants";
+import {subjects, teachingStyles, TeachingStyleId} from "@/constants";
 import {Textarea} from "@/components/ui/textarea";
 import {createCompanion} from "@/lib/actions/companion.actions";
 import {redirect} from "next/navigation";
+import {getUserSubscription, getMaxSessionDuration} from "@/lib/actions/subscription.actions";
+import {getPlanById} from "@/lib/subscription.config";
+import {useEffect, useState} from "react";
 
 const formSchema = z.object({
     name: z.string().min(1, { message: 'Companion is required.'}),
@@ -32,10 +35,38 @@ const formSchema = z.object({
     topic: z.string().min(1, { message: 'Topic is required.'}),
     voice: z.string().min(1, { message: 'Voice is required.'}),
     style: z.string().min(1, { message: 'Style is required.'}),
-    duration: z.coerce.number().min(1, { message: 'Duration is required.'}),
+    teachingStyle: z.string().min(1, { message: 'Teaching style is required.'}),
 })
 
 const CompanionForm = () => {
+    const [sessionInfo, setSessionInfo] = useState<{
+        maxSessionDuration: number;
+        voiceMinutesRemaining: number;
+        planName: string;
+    } | null>(null);
+
+    useEffect(() => {
+        const fetchSessionInfo = async () => {
+            try {
+                const subscription = await getUserSubscription();
+                const maxDuration = await getMaxSessionDuration();
+                
+                if (subscription) {
+                    const plan = getPlanById(subscription.planId);
+                    setSessionInfo({
+                        maxSessionDuration: maxDuration,
+                        voiceMinutesRemaining: subscription.voiceMinutesLimit - subscription.voiceMinutesUsed,
+                        planName: plan.name,
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch session info:', error);
+            }
+        };
+
+        fetchSessionInfo();
+    }, []);
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -44,7 +75,7 @@ const CompanionForm = () => {
             topic: '',
             voice: '',
             style: '',
-            duration: 15,
+            teachingStyle: '',
         },
     })
 
@@ -60,9 +91,38 @@ const CompanionForm = () => {
     }
 
     return (
-        <div className="bg-surface rounded-2xl border border-border-soft p-8 shadow-sm">
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-6">
+            {/* Session Limits Info */}
+            {sessionInfo && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                            <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <h4 className="font-semibold text-blue-800 mb-1">Your Session Limits ({sessionInfo.planName})</h4>
+                            <div className="space-y-1 text-sm text-blue-700">
+                                <p>• Sessions up to <strong>{sessionInfo.maxSessionDuration} minutes</strong> each</p>
+                                <p>• <strong>{sessionInfo.voiceMinutesRemaining} voice minutes</strong> remaining this month</p>
+                                <p>• Teaching style affects how your tutor approaches each session</p>
+                            </div>
+                            {sessionInfo.voiceMinutesRemaining < 10 && (
+                                <div className="mt-2 text-sm">
+                                    <a href="/subscription" className="text-blue-800 underline hover:text-blue-900">
+                                        Upgrade for more voice minutes →
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="bg-surface rounded-2xl border border-border-soft p-8 shadow-sm">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
                     control={form.control}
                     name="name"
@@ -195,17 +255,39 @@ const CompanionForm = () => {
 
                 <FormField
                     control={form.control}
-                    name="duration"
+                    name="teachingStyle"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Estimated session duration in minutes</FormLabel>
+                            <FormLabel>Teaching Style</FormLabel>
                             <FormControl>
-                                <Input
-                                    type="number"
-                                    placeholder="15"
-                                    {...field}
-                                    className="input"
-                                />
+                                <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    defaultValue={field.value}
+                                >
+                                    <SelectTrigger className="input">
+                                        <SelectValue placeholder="Choose teaching approach" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {Object.values(teachingStyles).map((style) => (
+                                            <SelectItem
+                                                value={style.id}
+                                                key={style.id}
+                                                className="py-3"
+                                            >
+                                                <div className="flex items-center space-x-3">
+                                                    <span className="text-lg">{style.icon}</span>
+                                                    <div>
+                                                        <div className="font-semibold">{style.name}</div>
+                                                        <div className="text-sm text-muted-foreground">
+                                                            {style.description}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -217,8 +299,9 @@ const CompanionForm = () => {
                     </svg>
                     Build Your Companion
                 </Button>
-                </form>
-            </Form>
+                    </form>
+                </Form>
+            </div>
         </div>
     )
 }

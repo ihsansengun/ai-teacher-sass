@@ -4,13 +4,15 @@ import { addBookmark } from "@/lib/actions/companion.actions";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { teachingStyles } from "@/constants/index";
 
 interface CompanionCardProps {
   id: string;
   name: string;
   topic: string;
   subject: string;
-  duration: number;
+  duration?: number;
+  teachingStyle?: string;
   color: string;
   bookmarked: boolean;
 }
@@ -21,6 +23,7 @@ const CompanionCard = ({
   topic,
   subject,
   duration,
+  teachingStyle,
   bookmarked,
 }: CompanionCardProps) => {
   const pathname = usePathname();
@@ -129,15 +132,15 @@ const CompanionCard = ({
 
           {/* Meta Information */}
           <div className="flex items-center justify-between pt-2">
-            {/* Duration */}
+            {/* Teaching Style */}
             <div className="flex items-center gap-2">
               <div className="neomorph-inset w-6 h-6 rounded-full flex items-center justify-center">
-                <svg className="w-3.5 h-3.5 text-neural-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <span className="text-xs">
+                  {teachingStyle ? teachingStyles[teachingStyle]?.icon : (duration && duration <= 10 ? teachingStyles.quick.icon : duration && duration <= 20 ? teachingStyles.balanced.icon : teachingStyles.deep.icon)}
+                </span>
               </div>
               <span className="text-xs font-semibold text-neural-600">
-                {duration}min
+                {teachingStyle ? teachingStyles[teachingStyle]?.name : (duration && duration <= 10 ? teachingStyles.quick.name : duration && duration <= 20 ? teachingStyles.balanced.name : teachingStyles.deep.name)}
               </span>
             </div>
 

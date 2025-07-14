@@ -48,3 +48,12 @@ type Message =
   | TranscriptMessage
   | FunctionCallMessage
   | FunctionCallResultMessage;
+
+// Companion types moved to index.d.ts to avoid conflicts
+
+interface GetAllCompanions {
+  limit?: number;
+  page?: number;
+  subject?: string;
+  topic?: string;
+}

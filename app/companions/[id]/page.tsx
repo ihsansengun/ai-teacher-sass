@@ -2,6 +2,7 @@ import {getCompanion} from "@/lib/actions/companion.actions";
 import {currentUser} from "@clerk/nextjs/server";
 import {redirect} from "next/navigation";
 import {getSubjectColor} from "@/lib/utils";
+import {teachingStyles} from "@/constants";
 import Image from "next/image";
 import CompanionComponent from "@/components/CompanionComponent";
 
@@ -14,7 +15,14 @@ const CompanionSession = async ({ params }: CompanionSessionPageProps) => {
     const companion = await getCompanion(id);
     const user = await currentUser();
 
-    const { name, subject, title, topic, duration } = companion;
+    const { name, subject, title, topic, teachingStyle, duration } = companion;
+    
+    // Backward compatibility: map duration to teachingStyle for existing companions
+    const finalTeachingStyle = teachingStyle || (
+        duration <= 10 ? 'quick' : 
+        duration <= 20 ? 'balanced' : 
+        'deep'
+    );
 
     if(!user) redirect('/sign-in');
     if(!name) redirect('/companions')
@@ -39,16 +47,27 @@ const CompanionSession = async ({ params }: CompanionSessionPageProps) => {
                         <p className="text-lg">{topic}</p>
                     </div>
                 </div>
-                <div className="items-start text-2xl max-md:hidden">
-                    {duration} minutes
+                <div className="items-start max-md:hidden">
+                    <div className="flex items-center gap-2">
+                        <span className="text-lg">{teachingStyles[finalTeachingStyle as keyof typeof teachingStyles]?.icon}</span>
+                        <span className="text-lg font-semibold">{teachingStyles[finalTeachingStyle as keyof typeof teachingStyles]?.name}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                        {teachingStyles[finalTeachingStyle as keyof typeof teachingStyles]?.description}
+                    </p>
                 </div>
             </article>
 
             <CompanionComponent
-                {...companion}
                 companionId={id}
+                subject={subject}
+                topic={topic}
+                name={name}
                 userName={user.firstName!}
                 userImage={user.imageUrl!}
+                voice={companion.voice}
+                style={companion.style}
+                teachingStyle={finalTeachingStyle}
             />
         </main>
     )

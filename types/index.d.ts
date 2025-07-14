@@ -5,6 +5,8 @@
 //   accountId: string;
 // };
 
+import { Models } from "appwrite";
+
 enum Subject {
   maths = "maths",
   language = "language",
@@ -22,7 +24,7 @@ type Companion = Models.DocumentList<Models.Document> & {
   name: string;
   subject: Subject;
   topic: string;
-  duration: number;
+  teachingStyle: string;
   bookmarked: boolean;
 };
 
@@ -32,7 +34,7 @@ interface CreateCompanion {
   topic: string;
   voice: string;
   style: string;
-  duration: number;
+  teachingStyle: string;
 }
 
 interface GetAllCompanions {
@@ -79,4 +81,5 @@ interface CompanionComponentProps {
   userImage: string;
   voice: string;
   style: string;
+  teachingStyle: string;
 }
