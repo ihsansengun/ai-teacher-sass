@@ -315,3 +315,206 @@ export const getUserUsageAnalytics = async () => {
     },
   };
 };
+
+// Get historical usage data for charts
+export const getHistoricalUsageData = async (months: number = 6) => {
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  const supabase = createSupabaseClient();
+  
+  // Calculate date range for historical data
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - months);
+  
+  const { data: sessions, error } = await supabase
+    .from('session_usage')
+    .select('duration_minutes, cost, start_time, tutor_id')
+    .eq('user_id', userId)
+    .gte('start_time', startDate.toISOString())
+    .lte('start_time', endDate.toISOString())
+    .order('start_time', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching historical usage:', error);
+    return null;
+  }
+
+  // Group sessions by month
+  const monthlyData: { [key: string]: { usage: number; cost: number; sessions: number; month: string } } = {};
+  
+  sessions?.forEach(session => {
+    const date = new Date(session.start_time);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    
+    if (!monthlyData[monthKey]) {
+      monthlyData[monthKey] = { usage: 0, cost: 0, sessions: 0, month: monthName };
+    }
+    
+    monthlyData[monthKey].usage += session.duration_minutes;
+    monthlyData[monthKey].cost += session.cost;
+    monthlyData[monthKey].sessions += 1;
+  });
+
+  // Convert to array and ensure all months are represented
+  const result = [];
+  for (let i = months - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setMonth(date.getMonth() - i);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    
+    result.push(monthlyData[monthKey] || { usage: 0, cost: 0, sessions: 0, month: monthName });
+  }
+
+  return result;
+};
+
+// Get detailed session history with filtering
+export const getDetailedSessionHistory = async (
+  page: number = 1,
+  limit: number = 20,
+  tutorId?: string,
+  startDate?: Date,
+  endDate?: Date
+) => {
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  const supabase = createSupabaseClient();
+  
+  let query = supabase
+    .from('session_usage')
+    .select(`
+      *,
+      tutors:tutor_id (
+        id,
+        name,
+        subject,
+        topic
+      )
+    `)
+    .eq('user_id', userId);
+
+  // Apply filters
+  if (tutorId) {
+    query = query.eq('tutor_id', tutorId);
+  }
+  if (startDate) {
+    query = query.gte('start_time', startDate.toISOString());
+  }
+  if (endDate) {
+    query = query.lte('start_time', endDate.toISOString());
+  }
+
+  // Add pagination and ordering
+  query = query
+    .order('start_time', { ascending: false })
+    .range((page - 1) * limit, page * limit - 1);
+
+  const { data: sessions, error, count } = await query;
+
+  if (error) {
+    console.error('Error fetching detailed session history:', error);
+    return null;
+  }
+
+  return {
+    sessions: sessions || [],
+    totalCount: count || 0,
+    hasMore: (count || 0) > page * limit
+  };
+};
+
+// Get usage trends and insights
+export const getUsageTrends = async () => {
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  const supabase = createSupabaseClient();
+  
+  // Get last 30 days of data
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const { data: recentSessions, error } = await supabase
+    .from('session_usage')
+    .select(`
+      duration_minutes,
+      cost,
+      start_time,
+      tutors:tutor_id (
+        subject,
+        topic
+      )
+    `)
+    .eq('user_id', userId)
+    .gte('start_time', thirtyDaysAgo.toISOString())
+    .order('start_time', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching usage trends:', error);
+    return null;
+  }
+
+  if (!recentSessions || recentSessions.length === 0) {
+    return {
+      dailyUsage: [],
+      subjectBreakdown: [],
+      averageSessionLength: 0,
+      totalSessions: 0,
+      peakUsageDays: []
+    };
+  }
+
+  // Group by day for daily usage chart
+  const dailyUsage: { [key: string]: { date: string; usage: number; sessions: number } } = {};
+  
+  // Subject breakdown
+  const subjectBreakdown: { [key: string]: { subject: string; usage: number; sessions: number } } = {};
+  
+  let totalDuration = 0;
+  
+  recentSessions.forEach(session => {
+    const date = new Date(session.start_time);
+    const dateKey = date.toISOString().split('T')[0];
+    const dateDisplay = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    
+    // Daily usage
+    if (!dailyUsage[dateKey]) {
+      dailyUsage[dateKey] = { date: dateDisplay, usage: 0, sessions: 0 };
+    }
+    dailyUsage[dateKey].usage += session.duration_minutes;
+    dailyUsage[dateKey].sessions += 1;
+    
+    // Subject breakdown
+    const subject = session.tutors?.subject || 'Unknown';
+    if (!subjectBreakdown[subject]) {
+      subjectBreakdown[subject] = { subject, usage: 0, sessions: 0 };
+    }
+    subjectBreakdown[subject].usage += session.duration_minutes;
+    subjectBreakdown[subject].sessions += 1;
+    
+    totalDuration += session.duration_minutes;
+  });
+
+  // Convert to arrays
+  const dailyUsageArray = Object.values(dailyUsage);
+  const subjectBreakdownArray = Object.values(subjectBreakdown);
+  
+  // Calculate insights
+  const averageSessionLength = totalDuration / recentSessions.length;
+  const peakUsageDays = dailyUsageArray
+    .sort((a, b) => b.usage - a.usage)
+    .slice(0, 3);
+
+  return {
+    dailyUsage: dailyUsageArray,
+    subjectBreakdown: subjectBreakdownArray,
+    averageSessionLength,
+    totalSessions: recentSessions.length,
+    peakUsageDays
+  };
+};

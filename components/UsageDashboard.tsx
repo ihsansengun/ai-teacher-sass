@@ -1,6 +1,9 @@
-import { Clock, TrendingUp, Users, AlertCircle } from "lucide-react";
+import { Clock, TrendingUp, Users, AlertCircle, BarChart3, History } from "lucide-react";
 import { getUserUsageAnalytics } from "@/lib/actions/subscription.actions";
 import { formatDistanceToNow } from "date-fns";
+import AnalyticsDashboard from "./AnalyticsDashboard";
+import SessionHistoryTable from "./SessionHistoryTable";
+import { useState } from "react";
 
 export const UsageDashboard = async () => {
   const analytics = await getUserUsageAnalytics();

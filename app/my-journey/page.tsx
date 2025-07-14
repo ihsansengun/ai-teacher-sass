@@ -13,6 +13,7 @@ import {
 } from "@/lib/actions/companion.actions";
 import Image from "next/image";
 import CompanionsList from "@/components/CompanionsList";
+import UsageDashboardClient from "@/components/UsageDashboardClient";
 
 const Profile = async () => {
   const user = await currentUser();
@@ -92,6 +93,22 @@ const Profile = async () => {
       {/* Learning Journey Sections */}
       <div className="space-y-6">
         <Accordion type="multiple" className="space-y-4">
+          <AccordionItem value="usage" className="glass-panel rounded-2xl border border-glass-border shadow-sm overflow-hidden">
+            <AccordionTrigger className="px-4 sm:px-8 py-4 sm:py-6 text-lg sm:text-xl font-semibold text-neural-800 hover:bg-neural-50/50 transition-colors duration-200">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-neural-blue/10 rounded-lg flex items-center justify-center">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-neural-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                Usage Analytics
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 sm:px-8 pb-4 sm:pb-6">
+              <UsageDashboardClient />
+            </AccordionContent>
+          </AccordionItem>
+
           <AccordionItem value="recent" className="glass-panel rounded-2xl border border-glass-border shadow-sm overflow-hidden">
             <AccordionTrigger className="px-4 sm:px-8 py-4 sm:py-6 text-lg sm:text-xl font-semibold text-neural-800 hover:bg-neural-50/50 transition-colors duration-200">
               <div className="flex items-center gap-3">
